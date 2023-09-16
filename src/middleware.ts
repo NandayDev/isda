@@ -10,15 +10,14 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession();
 
   if (session) {
-    return res;
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = "/";
+    return NextResponse.redirect(redirectUrl);
   }
 
-  const redirectUrl = req.nextUrl.clone();
-  redirectUrl.pathname = "/";
-  redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname);
-  return NextResponse.redirect(redirectUrl);
+  return res;
 }
 
 export const config = {
-  matcher: "/private/:path*",
+  matcher: ["/signin"],
 };
