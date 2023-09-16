@@ -9,8 +9,8 @@ export const ROUTES = {
   VOTERS: "/voters",
 };
 
-const PRIVATE_ROUTES = [ROUTES.VOTERS, ROUTES.VOTE];
-const PUBLIC_ROUTES = [ROUTES.SIGNIN];
+export const PRIVATE_ROUTES = [ROUTES.VOTERS, ROUTES.VOTE];
+export const PUBLIC_ROUTES = [ROUTES.SIGNIN];
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();

@@ -12,7 +12,7 @@ import {
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import useSupabaseQuery from "network/useSupabaseQuery";
-import { ROUTES } from "middleware";
+import { PRIVATE_ROUTES, ROUTES } from "middleware";
 
 const Header: FunctionComponent = () => {
   const router = useRouter();
@@ -21,7 +21,13 @@ const Header: FunctionComponent = () => {
     useSupabaseQuery.getSession();
 
   const { mutate: signOut, isLoading: isSignOutLoading } =
-    useSupabaseQuery.postSignout();
+    useSupabaseQuery.postSignout({
+      onSuccess: () => {
+        if (PRIVATE_ROUTES.includes(router.pathname)) {
+          router.replace(ROUTES.HOME);
+        }
+      },
+    });
 
   const isLoggedIn = !!session?.data.session;
 
