@@ -3,5 +3,8 @@
   "semi": true,
   "tabWidth": 2,
   "singleQuote": false,
-  "bracketSpacing": true
+  "bracketSpacing": true,
+  "plugins": [
+    "prettier-plugin-prisma"
+  ]
 }
