@@ -10,9 +10,9 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import ROUTES from "routes";
 import NextLink from "next/link";
 import useSupabaseQuery from "network/useSupabaseQuery";
+import { ROUTES } from "middleware";
 
 const Header: FunctionComponent = () => {
   const router = useRouter();
@@ -22,6 +22,8 @@ const Header: FunctionComponent = () => {
 
   const { mutate: signOut, isLoading: isSignOutLoading } =
     useSupabaseQuery.postSignout();
+
+  const isLoggedIn = !!session?.data.session;
 
   const handleLogout = () => {
     signOut();
@@ -40,7 +42,7 @@ const Header: FunctionComponent = () => {
             I Soldi degli Altri
           </Text>
           <Flex flex={1} alignItems={"center"} justifyContent={"space-between"}>
-            <Flex>
+            <Flex gap={4}>
               <Link
                 as={NextLink}
                 href={ROUTES.HOME}
@@ -51,12 +53,36 @@ const Header: FunctionComponent = () => {
               >
                 Classifica
               </Link>
+              {isLoggedIn && (
+                <>
+                  <Link
+                    as={NextLink}
+                    href={ROUTES.VOTE}
+                    fontWeight={
+                      router.pathname === ROUTES.VOTE ? "semibold" : "normal"
+                    }
+                    _hover={{ textDecoration: "none", fontWeight: "semibold" }}
+                  >
+                    Vota
+                  </Link>
+                  <Link
+                    as={NextLink}
+                    href={ROUTES.VOTERS}
+                    fontWeight={
+                      router.pathname === ROUTES.VOTERS ? "semibold" : "normal"
+                    }
+                    _hover={{ textDecoration: "none", fontWeight: "semibold" }}
+                  >
+                    Votanti
+                  </Link>
+                </>
+              )}
             </Flex>
             {isSessionLoading ? (
               <Button isLoading colorScheme={"teal"}>
                 Sign in
               </Button>
-            ) : session?.data.session ? (
+            ) : isLoggedIn ? (
               <Button
                 colorScheme={"teal"}
                 variant={"outline"}

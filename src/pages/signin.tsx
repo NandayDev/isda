@@ -12,7 +12,7 @@ import {
 import { ChangeEvent, MouseEvent, useState } from "react";
 import useSupabaseQuery from "network/useSupabaseQuery";
 import { useRouter } from "next/router";
-import ROUTES from "routes";
+import { ROUTES } from "middleware";
 
 const SignIn: NextPage = () => {
   const router = useRouter();

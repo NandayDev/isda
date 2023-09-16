@@ -2,6 +2,16 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+export const ROUTES = {
+  HOME: "/",
+  SIGNIN: "/signin",
+  VOTE: "/vote",
+  VOTERS: "/voters",
+};
+
+const PRIVATE_ROUTES = [ROUTES.VOTERS, ROUTES.VOTE];
+const PUBLIC_ROUTES = [ROUTES.SIGNIN];
+
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
@@ -9,9 +19,15 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (session) {
+  if (PRIVATE_ROUTES.includes(req.nextUrl.pathname) && !session) {
     const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = "/";
+    redirectUrl.pathname = ROUTES.SIGNIN;
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (PUBLIC_ROUTES.includes(req.nextUrl.pathname) && session) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = ROUTES.HOME;
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -19,5 +35,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/signin"],
+  matcher: [...PRIVATE_ROUTES, ...PUBLIC_ROUTES],
 };
