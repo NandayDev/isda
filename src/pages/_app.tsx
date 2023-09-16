@@ -3,6 +3,7 @@ import { Session, SessionContextProvider } from "@supabase/auth-helpers-react";
 import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { useState } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
+import "styles/globals.css";
 
 export default function App({
   Component,
