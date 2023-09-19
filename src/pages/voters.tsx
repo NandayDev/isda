@@ -13,13 +13,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { PrismaClient, Voter, VoterType } from "@prisma/client";
-import { capitalizeFirstLetter } from "utils/string";
+import { PrismaClient, Voter } from "@prisma/client";
 import {
   ChangeEvent,
   FormEvent,
@@ -69,10 +67,6 @@ const Voters: NextPage = () => {
       columnHelper.accessor("createdAt", {
         header: "Creato il",
         cell: (props) => new Date(props.getValue()).toLocaleDateString("it"),
-      }),
-      columnHelper.accessor("type", {
-        header: "Tipo",
-        cell: (props) => capitalizeFirstLetter(props.getValue().toLowerCase()),
       }),
       columnHelper.display({
         id: "actions",
@@ -154,12 +148,11 @@ const Voters: NextPage = () => {
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
-    const type = formData.get("type") as VoterType;
 
     if (editVoter) {
-      putVoter({ id: editVoter.id, name, type, image });
+      putVoter({ id: editVoter.id, name, image });
     } else {
-      postVoter({ name, type, image });
+      postVoter({ name, image });
     }
   };
 
@@ -205,16 +198,6 @@ const Voters: NextPage = () => {
                   placeholder={"Pinco Pallino"}
                   type={"text"}
                 />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Tipo</FormLabel>
-                <Select required defaultValue={editVoter?.type} name={"type"}>
-                  {Object.keys(VoterType).map((type) => (
-                    <option key={type} value={type}>
-                      {capitalizeFirstLetter(type.toLowerCase())}
-                    </option>
-                  ))}
-                </Select>
               </FormControl>
               <FormControl>
                 <Text fontWeight={"medium"} mb={2}>

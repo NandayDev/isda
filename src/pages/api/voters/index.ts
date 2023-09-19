@@ -37,7 +37,6 @@ export default async function handler(
       const voter = await prisma.voter.create({
         data: {
           name: req.body.name,
-          type: req.body.type,
         },
       });
 

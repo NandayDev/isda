@@ -21,7 +21,6 @@ export default async function handler(
         },
         data: {
           name: req.body.name,
-          type: req.body.type,
         },
       });
 

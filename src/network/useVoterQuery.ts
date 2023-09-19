@@ -1,26 +1,23 @@
 import {
   MutationOptions,
-  QueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import client from "network/utils/client";
 import { AxiosError } from "axios";
-import { Voter, VoterType } from "@prisma/client";
+import { Voter } from "@prisma/client";
 
 export const VOTERS_QUERY_KEY = "voters";
 
 interface PostVoterPayload {
   name: string;
-  type: VoterType;
   image?: string;
 }
 
 interface PutVoterPayload {
   id: string;
   name: string;
-  type: VoterType;
   image?: string;
 }
 
