@@ -7,12 +7,33 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "POST") {
+  if (req.method === "GET") {
     const supabase = createPagesServerClient({ req, res });
     const session = await supabase.auth.getSession();
-    const prisma = new PrismaClient();
 
     if (session) {
+      const prisma = new PrismaClient();
+      const voters = await prisma.voter.findMany();
+
+      res.status(200).json(
+        voters.map((voter) => ({
+          ...voter,
+          image:
+            voter.image &&
+            supabase.storage
+              .from(process.env.SUPABASE_STORAGE_VOTERS_IMAGES_BUCKET as string)
+              .getPublicUrl(voter.image).data.publicUrl,
+        }))
+      );
+    } else {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+  } else if (req.method === "POST") {
+    const supabase = createPagesServerClient({ req, res });
+    const session = await supabase.auth.getSession();
+
+    if (session) {
+      const prisma = new PrismaClient();
       const voter = await prisma.voter.create({
         data: {
           name: req.body.name,
