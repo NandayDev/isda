@@ -5,12 +5,13 @@ import { useState } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import "styles/globals.css";
 import { QueryClient } from "@tanstack/query-core";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { Hydrate, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App({
   Component,
   pageProps,
 }: AppProps<{
+  dehydratedState: unknown;
   initialSession: Session;
 }>) {
   const [queryClient] = useState(() => new QueryClient());
@@ -18,14 +19,16 @@ export default function App({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionContextProvider
-        supabaseClient={supabaseClient}
-        initialSession={pageProps.initialSession}
-      >
-        <ChakraProvider>
-          <Component {...pageProps} />
-        </ChakraProvider>
-      </SessionContextProvider>
+      <Hydrate state={pageProps.dehydratedState}>
+        <SessionContextProvider
+          supabaseClient={supabaseClient}
+          initialSession={pageProps.initialSession}
+        >
+          <ChakraProvider>
+            <Component {...pageProps} />
+          </ChakraProvider>
+        </SessionContextProvider>
+      </Hydrate>
     </QueryClientProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { NextPage } from "next";
+import { GetStaticProps, NextPage } from "next";
 import GlobalWrapper from "components/GlobalWrapper";
 import {
   Button,
@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { Voter, VoterType } from "@prisma/client";
+import { PrismaClient, Voter, VoterType } from "@prisma/client";
 import { capitalizeFirstLetter } from "utils/string";
 import {
   ChangeEvent,
@@ -29,10 +29,12 @@ import {
   useState,
 } from "react";
 import Image from "next/image";
-import useVoterQuery from "network/useVoterQuery";
-import Table from "components/Table";
+import useVoterQuery, { VOTERS_QUERY_KEY } from "network/useVoterQuery";
 import { createColumnHelper } from "@tanstack/table-core";
 import Head from "next/head";
+import { dehydrate, QueryClient } from "@tanstack/query-core";
+import { createClient } from "@supabase/supabase-js";
+import Table from "components/Table";
 
 const columnHelper = createColumnHelper<Voter>();
 
@@ -66,7 +68,7 @@ const Voters: NextPage = () => {
       }),
       columnHelper.accessor("createdAt", {
         header: "Creato il",
-        cell: (props) => new Date(props.getValue()).toLocaleDateString(),
+        cell: (props) => new Date(props.getValue()).toLocaleDateString("it"),
       }),
       columnHelper.accessor("type", {
         header: "Tipo",
@@ -264,6 +266,38 @@ const Voters: NextPage = () => {
       </Modal>
     </GlobalWrapper>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  const queryClient = new QueryClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+    {
+      auth: { persistSession: false },
+    }
+  );
+
+  const prisma = new PrismaClient();
+  const voters = await prisma.voter.findMany();
+
+  queryClient.setQueryData(
+    [VOTERS_QUERY_KEY],
+    voters.map((voter) => ({
+      ...voter,
+      image:
+        voter.image &&
+        supabase.storage
+          .from(process.env.SUPABASE_STORAGE_VOTERS_IMAGES_BUCKET as string)
+          .getPublicUrl(voter.image).data.publicUrl,
+    }))
+  );
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
 };
 
 export default Voters;

@@ -1,5 +1,6 @@
 import {
   MutationOptions,
+  QueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -8,7 +9,7 @@ import client from "network/utils/client";
 import { AxiosError } from "axios";
 import { Voter, VoterType } from "@prisma/client";
 
-const VOTERS_QUERY_KEY = "voters";
+export const VOTERS_QUERY_KEY = "voters";
 
 interface PostVoterPayload {
   name: string;
