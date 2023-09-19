@@ -37,6 +37,7 @@ const Header: FunctionComponent = () => {
 
   return (
     <Flex
+      as={"header"}
       alignItems={"center"}
       bg={useColorModeValue("white", "black")}
       px={4}
