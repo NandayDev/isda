@@ -28,6 +28,7 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
 import { AddIcon, CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 import Image from "next/image";
@@ -41,13 +42,37 @@ import {
   SELECTED_VOTERS_KEY,
   selectedVotersAtom,
 } from "atom/vote";
+import useVoteQuery from "network/useVoteQuery";
 
 const Vote: NextPage = () => {
+  const toast = useToast();
   const [candidateName, setCandidateName] = useAtom(candidateNameAtom);
   const [selectedVoters, setSelectedVoters] = useAtom(selectedVotersAtom);
 
-  const { data: voters, isLoading: isVotersLoading } =
-    useVoterQuery.getVoters();
+  const { data: voters } = useVoterQuery.getVoters();
+  const { mutate: vote, isLoading: isVoteLoading } = useVoteQuery.vote({
+    onSuccess: () => {
+      toast({
+        title: "Voto salvato",
+        description: "Il voto è stato salvato correttamente",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      handleClear(true);
+    },
+    onError: (error) => {
+      toast({
+        title: "Errore",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    },
+  });
 
   const calculations = useMemo(() => {
     const averagesByCategory = Object.values(VoteCategory).reduce(
@@ -176,9 +201,32 @@ const Vote: NextPage = () => {
     }
   }, [voters]);
 
-  const handleClear = () => {
-    setSelectedVoters(voters ? { [voters[0].id]: {} } : {});
+  const handleClear = (keepVoters?: boolean) => {
+    setSelectedVoters(
+      voters
+        ? keepVoters
+          ? selectedVotersIds.reduce(
+              (acc, id) => ({
+                ...acc,
+                [id]: {
+                  ...(selectedVoters[id].chatVotes ? { chatVotes: {} } : {}),
+                },
+              }),
+              {}
+            )
+          : {
+              [voters[0].id]: {},
+            }
+        : {}
+    );
     setCandidateName("");
+  };
+
+  const handleSave = () => {
+    vote({
+      candidateName,
+      vote: selectedVoters,
+    });
   };
 
   return (
@@ -414,7 +462,7 @@ const Vote: NextPage = () => {
         </Tbody>
       </Table>
       <Flex mt={4} justifyContent={"right"}>
-        <Button size={"lg"}>
+        <Button size={"lg"} isLoading={isVoteLoading} onClick={handleSave}>
           <CheckIcon mr={3} />
           Salva il voto
         </Button>
