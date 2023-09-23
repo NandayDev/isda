@@ -1,7 +1,7 @@
 import { GetStaticProps, NextPage } from "next";
 import GlobalWrapper from "components/GlobalWrapper";
 import useVoterQuery, { VOTERS_QUERY_KEY } from "network/useVoterQuery";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { PrismaClient, Voter } from "@prisma/client";
 import { dehydrate, QueryClient } from "@tanstack/query-core";
 import { createClient } from "@supabase/supabase-js";
@@ -29,16 +29,22 @@ import {
   Tr,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import Head from "next/head";
 import { SITE_TITLE } from "constants/base";
-import { VOTE_CATEGORY_NAMES, VoteCategory } from "constants/vote";
+import { CALCULATIONS_PRECISION, VOTE_CATEGORY_NAMES } from "constants/vote";
+import { VoteCategory } from "types/vote";
+import { useAtom } from "jotai";
+import {
+  SELECTED_VOTERS_KEY,
+  selectedVotersAtom,
+  voteeNameAtom,
+} from "atom/vote";
 
 const Vote: NextPage = () => {
-  const [selectedVoters, setSelectedVoters] = useState<
-    Record<string, { votes?: { [category in VoteCategory]?: number } }>
-  >({});
+  const [voteeName, setVoteeName] = useAtom(voteeNameAtom);
+  const [selectedVoters, setSelectedVoters] = useAtom(selectedVotersAtom);
 
   const { data: voters, isLoading: isVotersLoading } =
     useVoterQuery.getVoters();
@@ -53,43 +59,86 @@ const Vote: NextPage = () => {
         acc[category] = voters
           ? (
               Object.values(selectedVoters).reduce(
-                (acc, voter) => acc + (voter.votes?.[category] || 0),
+                (acc, voter) =>
+                  acc + parseFloat(voter.votes?.[category] || "0"),
                 0
               ) / voters
-            ).toFixed(2)
+            ).toFixed(CALCULATIONS_PRECISION)
           : undefined;
         return acc;
       },
       {} as Record<VoteCategory, string | undefined>
     );
 
-    return {
-      averagesByCategory,
-      totalAverage: Object.values(averagesByCategory).some(
-        (average) => average !== undefined
-      )
-        ? Object.values(averagesByCategory)
-            .reduce(
-              (acc, average) => acc + (average ? parseFloat(average) : 0),
+    const totalsByVoter = Object.entries(selectedVoters).reduce(
+      (acc, [id, voter]) => ({
+        ...acc,
+        [id]: voter.votes
+          ? Object.values(voter.votes)
+              .reduce((acc, vote) => acc + parseFloat(vote), 0)
+              .toFixed(CALCULATIONS_PRECISION)
+          : undefined,
+      }),
+      {} as Record<string, string | undefined>
+    );
+
+    const votersAverage = Object.values(averagesByCategory).some(
+      (average) => average !== undefined
+    )
+      ? Object.values(averagesByCategory)
+          .reduce(
+            (acc, average) => acc + (average ? parseFloat(average) : 0),
+            0
+          )
+          .toFixed(CALCULATIONS_PRECISION)
+      : undefined;
+
+    const chatsAverage =
+      Object.values(selectedVoters).some(
+        (selectedVoter) =>
+          selectedVoter.chatVotes?.voters !== undefined &&
+          selectedVoter.chatVotes?.positivePercentage !== undefined
+      ) && votersAverage
+        ? (
+            Object.values(selectedVoters).reduce(
+              (acc, voter) =>
+                acc +
+                (((voter.chatVotes?.voters || 0) *
+                  parseFloat(voter.chatVotes?.positivePercentage || "0")) /
+                  100) *
+                  30,
+              0
+            ) /
+            Object.values(selectedVoters).reduce(
+              (acc, voter) => acc + (voter.chatVotes?.voters || 0),
               0
             )
-            .toFixed(2)
-        : undefined,
-      totalsByVoter: Object.entries(selectedVoters).reduce(
-        (acc, [id, voter]) => ({
-          ...acc,
-          [id]: voter.votes
-            ? Object.values(voter.votes || {})
-                .reduce((acc, vote) => acc + vote, 0)
-                .toFixed(2)
-            : undefined,
-        }),
-        {} as Record<string, string | undefined>
-      ),
+          ).toFixed(CALCULATIONS_PRECISION)
+        : undefined;
+
+    const totalAverage =
+      chatsAverage && votersAverage
+        ? (
+            (Object.values(totalsByVoter).reduce(
+              (acc, average) => acc + (average ? parseFloat(average) : 0),
+              0
+            ) +
+              parseFloat(chatsAverage)) /
+            (Object.values(totalsByVoter).filter(
+              (average) => average !== undefined
+            ).length +
+              1)
+          ).toFixed(CALCULATIONS_PRECISION)
+        : votersAverage;
+
+    return {
+      averagesByCategory,
+      chatsAverage,
+      totalsByVoter,
+      votersAverage,
+      totalAverage,
     };
   }, [selectedVoters]);
-
-  console.log(calculations);
 
   const votersObject = useMemo(
     () =>
@@ -117,15 +166,25 @@ const Vote: NextPage = () => {
   );
 
   useEffect(() => {
-    if (voters && selectedVotersIds.length === 0) {
+    if (
+      typeof window !== "undefined" &&
+      !localStorage.getItem(SELECTED_VOTERS_KEY) &&
+      voters &&
+      Object.values(selectedVoters).length === 0
+    ) {
       setSelectedVoters({ [voters[0].id]: {} });
     }
   }, [voters]);
 
+  const handleClear = () => {
+    setSelectedVoters(voters ? { [voters[0].id]: {} } : {});
+    setVoteeName("");
+  };
+
   return (
     <GlobalWrapper>
       <Head>
-        <title>Vota - {SITE_TITLE}</title>
+        <title>{`Vota - ${SITE_TITLE}`}</title>
       </Head>
       <Flex
         alignItems={"center"}
@@ -137,69 +196,79 @@ const Vote: NextPage = () => {
         <Text fontSize={"4xl"} fontWeight={"bold"}>
           Vota
         </Text>
-        {notSelectedVotersIds.length > 0 && (
-          <Menu>
-            <MenuButton as={Button} size={"sm"}>
-              <AddIcon mr={2} /> Aggiungi votante
-            </MenuButton>
-            <MenuList>
-              {notSelectedVotersIds.map((voterId) => (
-                <MenuItem
-                  key={voterId}
-                  onClick={() =>
-                    setSelectedVoters({ ...selectedVoters, [voterId]: {} })
-                  }
-                >
-                  {votersObject[voterId].name}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-        )}
+        <Flex gap={2}>
+          <Button onClick={handleClear} size={"sm"} variant={"outline"}>
+            <DeleteIcon mr={2} />
+            Svuota tabella
+          </Button>
+          {notSelectedVotersIds.length > 0 && (
+            <Menu>
+              <MenuButton as={Button} size={"sm"}>
+                <AddIcon mr={2} /> Aggiungi votante
+              </MenuButton>
+              <MenuList>
+                {notSelectedVotersIds.map((voterId) => (
+                  <MenuItem
+                    key={voterId}
+                    onClick={() =>
+                      setSelectedVoters({ ...selectedVoters, [voterId]: {} })
+                    }
+                  >
+                    {votersObject[voterId].name}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+          )}
+        </Flex>
       </Flex>
       <Table bg={useColorModeValue("white", "black")}>
         <Thead>
-          <Th>
-            <FormControl>
-              <FormLabel textTransform={"unset"}>Nome candidato</FormLabel>
-              <Input />
-            </FormControl>
-          </Th>
-          {votersObject &&
-            selectedVotersIds.map((voterId) => (
-              <Th>
-                <Flex alignItems={"center"} direction={"column"} gap={2}>
-                  {votersObject[voterId].image && (
-                    <Image
-                      src={votersObject[voterId].image as string}
-                      alt={votersObject[voterId].name}
-                      width={100}
-                      height={100}
-                    />
-                  )}
-                  {votersObject[voterId].name}
-                </Flex>
-              </Th>
-            ))}
-          <Th>
-            <Text align={"center"}>Media</Text>
-          </Th>
+          <Tr>
+            <Th>
+              <FormControl>
+                <FormLabel textTransform={"unset"}>Nome candidato</FormLabel>
+                <Input
+                  onChange={(event) => setVoteeName(event.target.value)}
+                  value={voteeName}
+                />
+              </FormControl>
+            </Th>
+            {votersObject &&
+              selectedVotersIds.map((voterId) => (
+                <Th key={voterId}>
+                  <Flex alignItems={"center"} direction={"column"} gap={2}>
+                    {votersObject[voterId].image && (
+                      <Image
+                        src={votersObject[voterId].image as string}
+                        alt={votersObject[voterId].name}
+                        width={100}
+                        height={100}
+                      />
+                    )}
+                    {votersObject[voterId].name}
+                  </Flex>
+                </Th>
+              ))}
+            <Th>
+              <Text align={"center"}>Media</Text>
+            </Th>
+          </Tr>
         </Thead>
         <Tbody>
-          {Object.values(VoteCategory).map((category, i) => (
-            <Tr>
+          {Object.values(VoteCategory).map((category) => (
+            <Tr key={category}>
               <Td>
                 <Text fontWeight={"medium"}>
                   {VOTE_CATEGORY_NAMES[category]}
                 </Text>
               </Td>
               {selectedVotersIds.map((voterId) => (
-                <Td>
+                <Td key={voterId}>
                   <NumberInput
-                    precision={2}
                     min={0}
                     max={10}
-                    onChange={(_, value) =>
+                    onChange={(value) =>
                       setSelectedVoters((selectedVoters) => ({
                         ...selectedVoters,
                         [voterId]: {
@@ -211,6 +280,7 @@ const Vote: NextPage = () => {
                         },
                       }))
                     }
+                    value={selectedVoters[voterId].votes?.[category]}
                   >
                     <NumberInputField textAlign={"center"} />
                     <NumberInputStepper>
@@ -232,12 +302,109 @@ const Vote: NextPage = () => {
               <Text fontWeight={"medium"}>Voto finale (/30)</Text>
             </Td>
             {selectedVotersIds.map((voterId) => (
-              <Td>
+              <Td key={voterId}>
                 <Text align={"center"}>
                   {calculations.totalsByVoter[voterId]}
                 </Text>
               </Td>
             ))}
+            <Td>
+              <Text align={"center"}>{calculations.votersAverage}</Text>
+            </Td>
+          </Tr>
+          <Tr>
+            <Td>
+              <Text fontWeight={"medium"}>Voto chat</Text>
+            </Td>
+            {selectedVotersIds.map((voterId) => (
+              <Td key={voterId}>
+                {selectedVoters[voterId].chatVotes ? (
+                  <Flex direction={"column"} gap={2}>
+                    <FormControl>
+                      <FormLabel>Numero votanti</FormLabel>
+                      <NumberInput
+                        min={0}
+                        onChange={(_, value) =>
+                          setSelectedVoters((selectedVoters) => ({
+                            ...selectedVoters,
+                            [voterId]: {
+                              ...selectedVoters[voterId],
+                              chatVotes: {
+                                ...selectedVoters[voterId].chatVotes,
+                                voters: value,
+                              },
+                            },
+                          }))
+                        }
+                        value={selectedVoters[voterId].chatVotes?.voters}
+                      >
+                        <NumberInputField textAlign={"center"} />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel>Numero "Si" (in %)</FormLabel>
+                      <NumberInput
+                        min={0}
+                        max={100}
+                        onChange={(value) =>
+                          setSelectedVoters((selectedVoters) => ({
+                            ...selectedVoters,
+                            [voterId]: {
+                              ...selectedVoters[voterId],
+                              chatVotes: {
+                                ...selectedVoters[voterId].chatVotes,
+                                positivePercentage: value,
+                              },
+                            },
+                          }))
+                        }
+                        value={
+                          selectedVoters[voterId].chatVotes?.positivePercentage
+                        }
+                      >
+                        <NumberInputField textAlign={"center"} />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </FormControl>
+                  </Flex>
+                ) : (
+                  <Flex alignItems={"center"} justifyContent={"center"}>
+                    <Button
+                      onClick={() =>
+                        setSelectedVoters((selectedVoters) => ({
+                          ...selectedVoters,
+                          [voterId]: {
+                            ...selectedVoters[voterId],
+                            chatVotes: {},
+                          },
+                        }))
+                      }
+                      variant={"outline"}
+                    >
+                      <AddIcon mr={2} />
+                      Aggiungi chat
+                    </Button>
+                  </Flex>
+                )}
+              </Td>
+            ))}
+            <Td>
+              <Text align={"center"}>{calculations.chatsAverage}</Text>
+            </Td>
+          </Tr>
+          <Tr>
+            <Td colSpan={selectedVotersIds.length + 1}>
+              <Text align={"right"} fontWeight={"medium"} fontSize={"2xl"}>
+                Media totale
+              </Text>
+            </Td>
             <Td>
               <Text align={"center"} fontWeight={"medium"} fontSize={"2xl"}>
                 {calculations.totalAverage}
@@ -246,6 +413,12 @@ const Vote: NextPage = () => {
           </Tr>
         </Tbody>
       </Table>
+      <Flex mt={4} justifyContent={"right"}>
+        <Button size={"lg"}>
+          <CheckIcon mr={3} />
+          Salva il voto
+        </Button>
+      </Flex>
     </GlobalWrapper>
   );
 };

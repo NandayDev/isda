@@ -1,8 +1,6 @@
-export enum VoteCategory {
-  casePresentation = "case_presentation",
-  assetAllocation = "asset_allocation",
-  goalsAdherence = "goals_adherence",
-}
+import { VoteCategory } from "types/vote";
+
+export const CALCULATIONS_PRECISION = 1;
 
 export const VOTE_CATEGORY_NAMES = {
   [VoteCategory.casePresentation]: "Presentazione del caso",
