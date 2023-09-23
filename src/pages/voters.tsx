@@ -76,7 +76,6 @@ const Voters: NextPage = () => {
           return (
             <Flex flexDirection={"column"} gap={2}>
               <Button
-                colorScheme={"teal"}
                 size={"sm"}
                 variant={"outline"}
                 onClick={() => {
@@ -176,7 +175,7 @@ const Voters: NextPage = () => {
         <Text fontSize={"4xl"} fontWeight={"bold"}>
           Votanti
         </Text>
-        <Button colorScheme={"teal"} size={"sm"} onClick={onOpen}>
+        <Button size={"sm"} onClick={onOpen}>
           <AddIcon mr={2} />
           Aggiungi votante
         </Button>
@@ -212,7 +211,6 @@ const Voters: NextPage = () => {
                   />
                 )}
                 <Button
-                  colorScheme={"teal"}
                   mt={image || editVoter?.image ? 2 : 0}
                   onClick={onAddImageButtonClick}
                 >
@@ -236,11 +234,7 @@ const Voters: NextPage = () => {
               <Button variant={"ghost"} onClick={onClose}>
                 Chiudi
               </Button>
-              <Button
-                colorScheme={"teal"}
-                isLoading={isPostVoterLoading}
-                type={"submit"}
-              >
+              <Button isLoading={isPostVoterLoading} type={"submit"}>
                 {editVoter ? "Modifica" : "Aggiungi"}
               </Button>
             </ModalFooter>

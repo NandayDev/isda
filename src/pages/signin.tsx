@@ -77,11 +77,7 @@ const SignIn: NextPage = () => {
             onChange={handlePasswordChange}
           />
         </FormControl>
-        <Button
-          colorScheme={"teal"}
-          onClick={handleSubmit}
-          isLoading={isSignInLoading}
-        >
+        <Button onClick={handleSubmit} isLoading={isSignInLoading}>
           Sign in
         </Button>
       </Flex>

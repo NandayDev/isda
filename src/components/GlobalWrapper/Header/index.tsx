@@ -86,12 +86,9 @@ const Header: FunctionComponent = () => {
               )}
             </Flex>
             {isSessionLoading ? (
-              <Button isLoading colorScheme={"teal"}>
-                Sign in
-              </Button>
+              <Button isLoading>Sign in</Button>
             ) : isLoggedIn ? (
               <Button
-                colorScheme={"teal"}
                 variant={"outline"}
                 onClick={handleLogout}
                 isLoading={isSignOutLoading}
@@ -99,7 +96,7 @@ const Header: FunctionComponent = () => {
                 Logout
               </Button>
             ) : (
-              <Button as={NextLink} colorScheme={"teal"} href={ROUTES.SIGNIN}>
+              <Button as={NextLink} href={ROUTES.SIGNIN}>
                 Sign in
               </Button>
             )}
