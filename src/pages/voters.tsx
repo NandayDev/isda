@@ -33,6 +33,7 @@ import Head from "next/head";
 import { dehydrate, QueryClient } from "@tanstack/query-core";
 import { createClient } from "@supabase/supabase-js";
 import Table from "components/Table";
+import { SITE_TITLE } from "constants/base";
 
 const columnHelper = createColumnHelper<Voter>();
 
@@ -164,7 +165,7 @@ const Voters: NextPage = () => {
   return (
     <GlobalWrapper>
       <Head>
-        <title>Votanti</title>
+        <title>Votanti - {SITE_TITLE}</title>
       </Head>
       <Flex
         alignItems={"center"}
