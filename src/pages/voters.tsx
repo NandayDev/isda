@@ -15,6 +15,7 @@ import {
   ModalOverlay,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { PrismaClient, Voter } from "@prisma/client";
@@ -38,6 +39,7 @@ import { SITE_TITLE } from "constants/base";
 const columnHelper = createColumnHelper<Voter>();
 
 const Voters: NextPage = () => {
+  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [image, setImage] = useState<string | undefined>(undefined);
@@ -112,6 +114,24 @@ const Voters: NextPage = () => {
       onSuccess: () => {
         onClose();
         setImage(undefined);
+        toast({
+          title: "Votante creato",
+          description: "Il votante è stato creato correttamente",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore durante la creazione del votante",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
       },
     });
 
@@ -120,10 +140,49 @@ const Voters: NextPage = () => {
       onSuccess: () => {
         onClose();
         setImage(undefined);
+        toast({
+          title: "Votante modificato",
+          description: "Il votante è stato modificato correttamente",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore durante la modifica del votante",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
       },
     });
   const { mutate: deleteVoter, isLoading: isDeleteVoterLoading } =
-    useVoterQuery.deleteVoter();
+    useVoterQuery.deleteVoter({
+      onSuccess: () => {
+        toast({
+          title: "Votante eliminato",
+          description: "Il votante è stato eliminato correttamente",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Errore durante l'eliminazione del votante",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
+      },
+    });
 
   const imageInputRef = useRef<HTMLInputElement>(null);
 
