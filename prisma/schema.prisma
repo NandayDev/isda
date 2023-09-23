@@ -28,11 +28,11 @@ model Voter {
 model Vote {
   id           String    @id @default(cuid())
   createdAt    DateTime  @default(now())
-  voter        Voter     @relation(fields: [voterId], references: [id])
+  voter        Voter     @relation(fields: [voterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   voterId      String
   voteData     Json
   chatVoteData Json?
-  Candidate    Candidate @relation(fields: [candidateId], references: [id])
+  Candidate    Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   candidateId  String
 }
 
