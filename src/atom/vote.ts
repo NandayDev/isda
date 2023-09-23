@@ -4,8 +4,8 @@ import { LOCALSTORAGE_NAMESPACE } from "constants/local-storage";
 
 export const SELECTED_VOTERS_KEY = `${LOCALSTORAGE_NAMESPACE}/vote/selectedVoters`;
 
-export const voteeNameAtom = atomWithStorage<string>(
-  `${LOCALSTORAGE_NAMESPACE}/vote/voteeName`,
+export const candidateNameAtom = atomWithStorage<string>(
+  `${LOCALSTORAGE_NAMESPACE}/vote/candidateName`,
   ""
 );
 

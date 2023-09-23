@@ -37,13 +37,13 @@ import { CALCULATIONS_PRECISION, VOTE_CATEGORY_NAMES } from "constants/vote";
 import { VoteCategory } from "types/vote";
 import { useAtom } from "jotai";
 import {
+  candidateNameAtom,
   SELECTED_VOTERS_KEY,
   selectedVotersAtom,
-  voteeNameAtom,
 } from "atom/vote";
 
 const Vote: NextPage = () => {
-  const [voteeName, setVoteeName] = useAtom(voteeNameAtom);
+  const [candidateName, setCandidateName] = useAtom(candidateNameAtom);
   const [selectedVoters, setSelectedVoters] = useAtom(selectedVotersAtom);
 
   const { data: voters, isLoading: isVotersLoading } =
@@ -178,7 +178,7 @@ const Vote: NextPage = () => {
 
   const handleClear = () => {
     setSelectedVoters(voters ? { [voters[0].id]: {} } : {});
-    setVoteeName("");
+    setCandidateName("");
   };
 
   return (
@@ -229,8 +229,8 @@ const Vote: NextPage = () => {
               <FormControl>
                 <FormLabel textTransform={"unset"}>Nome candidato</FormLabel>
                 <Input
-                  onChange={(event) => setVoteeName(event.target.value)}
-                  value={voteeName}
+                  onChange={(event) => setCandidateName(event.target.value)}
+                  value={candidateName}
                 />
               </FormControl>
             </Th>

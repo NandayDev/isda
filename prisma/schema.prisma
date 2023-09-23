@@ -26,17 +26,17 @@ model Voter {
 }
 
 model Vote {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
-  voter        Voter    @relation(fields: [voterId], references: [id])
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  voter        Voter     @relation(fields: [voterId], references: [id])
   voterId      String
   voteData     Json
   chatVoteData Json?
-  Votee        Votee?   @relation(fields: [voteeId], references: [id])
-  voteeId      String?
+  Candidate    Candidate @relation(fields: [candidateId], references: [id])
+  candidateId  String
 }
 
-model Votee {
+model Candidate {
   id        String   @id @default(cuid())
   name      String
   createdAt DateTime @default(now())
