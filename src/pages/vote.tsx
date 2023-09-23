@@ -245,7 +245,7 @@ const Vote: NextPage = () => {
           Vota
         </Text>
         <Flex gap={2}>
-          <Button onClick={handleClear} size={"sm"} variant={"outline"}>
+          <Button onClick={() => handleClear()} size={"sm"} variant={"outline"}>
             <DeleteIcon mr={2} />
             Svuota tabella
           </Button>
