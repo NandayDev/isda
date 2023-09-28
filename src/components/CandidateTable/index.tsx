@@ -124,7 +124,13 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
           </Td>
         </Tr>
         <Tr>
-          <Td colSpan={voters.length + 1}>
+          <Td>
+            <Text fontSize={"sm"}>
+              Inserito il: {new Date(candidate.createdAt).toLocaleDateString()}{" "}
+              alle ore {new Date(candidate.createdAt).toLocaleTimeString()}
+            </Text>{" "}
+          </Td>
+          <Td colSpan={voters.length}>
             <Text align={"right"} fontWeight={"medium"} fontSize={"2xl"}>
               Media totale
             </Text>
