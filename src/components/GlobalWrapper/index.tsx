@@ -27,7 +27,7 @@ const GlobalWrapper: FunctionComponent<GlobalWrapperProps> = ({
       <Flex
         as={"main"}
         bg={useColorModeValue("gray.100", "gray.900")}
-        height={"calc(100% - 64px)"}
+        height={withoutHeader ? "100%" : "calc(100% - 64px)"}
       >
         <Container
           display={"flex"}
