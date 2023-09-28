@@ -8,118 +8,191 @@ import useCandidateQuery, {
 import useVoterQuery, { VOTERS_QUERY_KEY } from "network/useVoterQuery";
 import { createClient } from "@supabase/supabase-js";
 import CandidateTable from "components/CandidateTable";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ChatVoteData, VoteCategory, VoteData } from "types/vote";
 import { CALCULATIONS_PRECISION } from "constants/vote";
+import {
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { SortType } from "types/sort";
+import { SORT_TEXT } from "constants/sort";
+import { CandidateWithVotesAndCalculations } from "types/candidate";
 
 const Home: NextPage = () => {
+  const [sortType, setSortType] = useState<SortType>(SortType.VoteAsc);
+
   const { data: candidates } = useCandidateQuery.getAll();
   const { data: voters } = useVoterQuery.getVoters();
 
+  const sortFunctions = {
+    [SortType.VoteAsc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) =>
+      parseFloat(a.calculations.totalAverage) -
+      parseFloat(b.calculations.totalAverage),
+    [SortType.VoteDesc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) =>
+      parseFloat(b.calculations.totalAverage) -
+      parseFloat(a.calculations.totalAverage),
+    [SortType.NameAsc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) => a.name.localeCompare(b.name),
+    [SortType.NameDesc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) => b.name.localeCompare(a.name),
+    [SortType.DateAsc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) => a.name.localeCompare(b.name),
+    [SortType.DateDesc]: (
+      a: CandidateWithVotesAndCalculations,
+      b: CandidateWithVotesAndCalculations
+    ) => b.name.localeCompare(a.name),
+  };
+
   const candidatesWithCalculations = useMemo(
     () =>
-      candidates?.map((candidate) => {
-        const averagesByCategory = Object.values(VoteCategory).reduce(
-          (acc, category) => {
-            const voteData = candidate.votes.map((vote) => ({
-              voterId: vote.voterId,
-              value: (vote.voteData as VoteData)[category],
-            }));
+      candidates
+        ?.map((candidate) => {
+          const averagesByCategory = Object.values(VoteCategory).reduce(
+            (acc, category) => {
+              const voteData = candidate.votes.map((vote) => ({
+                voterId: vote.voterId,
+                value: (vote.voteData as VoteData)[category],
+              }));
 
-            const average = (
-              voteData.reduce((acc, vote) => acc + parseFloat(vote.value), 0) /
-              candidate.votes.length
-            ).toFixed(CALCULATIONS_PRECISION);
-
-            return {
-              ...acc,
-              [category]: average,
-            };
-          },
-          {} as Record<VoteCategory, string>
-        );
-
-        const totalsByVoter = candidate.votes.reduce(
-          (acc, vote) => {
-            const voteData = vote.voteData as VoteData;
-
-            const total = Object.values(VoteCategory)
-              .reduce(
-                (acc, category) => acc + parseFloat(voteData[category]),
-                0
-              )
-              .toFixed(CALCULATIONS_PRECISION);
-
-            return {
-              ...acc,
-              [vote.voterId]: total,
-            };
-          },
-          {} as Record<string, string>
-        );
-
-        const votersAverage = Object.values(averagesByCategory)
-          .reduce((acc, average) => acc + parseFloat(average), 0)
-          .toFixed(CALCULATIONS_PRECISION);
-
-        const chatsAverage = (
-          candidate.votes.reduce((acc, vote) => {
-            const chatVoteData = vote.chatVoteData as ChatVoteData | null;
-
-            return (
-              acc +
-              (((chatVoteData?.voters || 0) *
-                parseFloat(chatVoteData?.positivePercentage || "0")) /
-                100) *
-                30
-            );
-          }, 0) /
-          candidate.votes.reduce(
-            (acc, vote) =>
-              acc + ((vote.chatVoteData as ChatVoteData | null)?.voters || 0),
-            0
-          )
-        ).toFixed(CALCULATIONS_PRECISION);
-
-        const totalAverage =
-          chatsAverage && votersAverage
-            ? (
-                (Object.values(totalsByVoter).reduce(
-                  (acc, average) => acc + (average ? parseFloat(average) : 0),
+              const average = (
+                voteData.reduce(
+                  (acc, vote) => acc + parseFloat(vote.value),
                   0
-                ) +
-                  parseFloat(chatsAverage)) /
-                (Object.values(totalsByVoter).filter(
-                  (average) => average !== undefined
-                ).length +
-                  1)
-              ).toFixed(CALCULATIONS_PRECISION)
-            : votersAverage;
+                ) / candidate.votes.length
+              ).toFixed(CALCULATIONS_PRECISION);
 
-        return {
-          ...candidate,
-          calculations: {
-            averagesByCategory,
-            chatsAverage,
-            totalAverage,
-            totalsByVoter,
-            votersAverage,
-          },
-        };
-      }),
-    [candidates, voters]
+              return {
+                ...acc,
+                [category]: average,
+              };
+            },
+            {} as Record<VoteCategory, string>
+          );
+
+          const totalsByVoter = candidate.votes.reduce(
+            (acc, vote) => {
+              const voteData = vote.voteData as VoteData;
+
+              const total = Object.values(VoteCategory)
+                .reduce(
+                  (acc, category) => acc + parseFloat(voteData[category]),
+                  0
+                )
+                .toFixed(CALCULATIONS_PRECISION);
+
+              return {
+                ...acc,
+                [vote.voterId]: total,
+              };
+            },
+            {} as Record<string, string>
+          );
+
+          const votersAverage = Object.values(averagesByCategory)
+            .reduce((acc, average) => acc + parseFloat(average), 0)
+            .toFixed(CALCULATIONS_PRECISION);
+
+          const chatsAverage = (
+            candidate.votes.reduce((acc, vote) => {
+              const chatVoteData = vote.chatVoteData as ChatVoteData | null;
+
+              return (
+                acc +
+                (((chatVoteData?.voters || 0) *
+                  parseFloat(chatVoteData?.positivePercentage || "0")) /
+                  100) *
+                  30
+              );
+            }, 0) /
+            candidate.votes.reduce(
+              (acc, vote) =>
+                acc + ((vote.chatVoteData as ChatVoteData | null)?.voters || 0),
+              0
+            )
+          ).toFixed(CALCULATIONS_PRECISION);
+
+          const totalAverage =
+            chatsAverage && votersAverage
+              ? (
+                  (Object.values(totalsByVoter).reduce(
+                    (acc, average) => acc + (average ? parseFloat(average) : 0),
+                    0
+                  ) +
+                    parseFloat(chatsAverage)) /
+                  (Object.values(totalsByVoter).filter(
+                    (average) => average !== undefined
+                  ).length +
+                    1)
+                ).toFixed(CALCULATIONS_PRECISION)
+              : votersAverage;
+
+          return {
+            ...candidate,
+            calculations: {
+              averagesByCategory,
+              chatsAverage,
+              totalAverage,
+              totalsByVoter,
+              votersAverage,
+            },
+          };
+        })
+        .sort(sortFunctions[sortType]),
+    [candidates, sortType, voters]
   );
 
   return (
     <GlobalWrapper>
-      {voters &&
-        candidatesWithCalculations?.map((candidateWithCalculation) => (
-          <CandidateTable
-            key={candidateWithCalculation.id}
-            candidate={candidateWithCalculation}
-            voters={voters}
+      <Flex ml={"auto"} justifyContent={"flex-end"} gap={2} mb={4}>
+        <FormControl>
+          <FormLabel>Cerca</FormLabel>
+          <Input
+            bg={useColorModeValue("white", "black")}
+            placeholder={"Cerca..."}
           />
-        ))}
+        </FormControl>
+        <FormControl>
+          <FormLabel>Ordina per</FormLabel>
+          <Select
+            bg={useColorModeValue("white", "black")}
+            onChange={(event) => setSortType(event.target.value as SortType)}
+            value={sortType}
+          >
+            {Object.values(SortType).map((sortType) => (
+              <option key={sortType} value={sortType}>
+                {SORT_TEXT[sortType]}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+      </Flex>
+      <Flex direction={"column"} gap={4}>
+        {voters &&
+          candidatesWithCalculations?.map((candidateWithCalculation) => (
+            <CandidateTable
+              key={candidateWithCalculation.id}
+              candidate={candidateWithCalculation}
+              voters={voters}
+            />
+          ))}
+      </Flex>
     </GlobalWrapper>
   );
 };

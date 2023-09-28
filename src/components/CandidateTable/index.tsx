@@ -12,20 +12,12 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { Voter } from "@prisma/client";
-import { CandidateWithVotes } from "types/candidate";
 import { ChatVoteData, VoteCategory, VoteData } from "types/vote";
 import { VOTE_CATEGORY_NAMES } from "constants/vote";
+import { CandidateWithVotesAndCalculations } from "types/candidate";
 
 interface CandidateTableProps {
-  candidate: CandidateWithVotes & {
-    calculations: {
-      averagesByCategory: Record<VoteCategory, string>;
-      totalsByVoter: Record<string, string>;
-      votersAverage: string;
-      chatsAverage: string;
-      totalAverage: string;
-    };
-  };
+  candidate: CandidateWithVotesAndCalculations;
   voters: Voter[];
 }
 
@@ -33,8 +25,6 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
   candidate,
   voters,
 }) => {
-  console.log(candidate);
-
   return (
     <Table bg={useColorModeValue("white", "black")}>
       <Thead>
