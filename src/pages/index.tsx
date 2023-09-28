@@ -17,17 +17,29 @@ import {
   FormLabel,
   Input,
   Select,
+  Text,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { SortType } from "types/sort";
 import { SORT_TEXT } from "constants/sort";
 import { CandidateWithVotesAndCalculations } from "types/candidate";
+import useFuse from "hooks/useFuse";
+import Head from "next/head";
+import { SITE_TITLE } from "constants/base";
 
 const Home: NextPage = () => {
   const [sortType, setSortType] = useState<SortType>(SortType.VoteAsc);
 
   const { data: candidates } = useCandidateQuery.getAll();
   const { data: voters } = useVoterQuery.getVoters();
+
+  const {
+    result: candidatesSearchResult,
+    search,
+    term,
+  } = useFuse(candidates, {
+    keys: ["name"],
+  });
 
   const sortFunctions = {
     [SortType.VoteAsc]: (
@@ -62,7 +74,7 @@ const Home: NextPage = () => {
 
   const candidatesWithCalculations = useMemo(
     () =>
-      candidates
+      candidatesSearchResult
         ?.map((candidate) => {
           const averagesByCategory = Object.values(VoteCategory).reduce(
             (acc, category) => {
@@ -154,18 +166,23 @@ const Home: NextPage = () => {
             },
           };
         })
-        .sort(sortFunctions[sortType]),
-    [candidates, sortType, voters]
+        .sort(sortFunctions[sortType]) || [],
+    [candidatesSearchResult, sortType, voters]
   );
 
   return (
     <GlobalWrapper>
+      <Head>
+        <title>{SITE_TITLE}</title>
+      </Head>
       <Flex ml={"auto"} justifyContent={"flex-end"} gap={2} mb={4}>
         <FormControl>
           <FormLabel>Cerca</FormLabel>
           <Input
             bg={useColorModeValue("white", "black")}
             placeholder={"Cerca..."}
+            onChange={(event) => search(event.target.value)}
+            value={term}
           />
         </FormControl>
         <FormControl>
@@ -183,16 +200,23 @@ const Home: NextPage = () => {
           </Select>
         </FormControl>
       </Flex>
-      <Flex direction={"column"} gap={4}>
-        {voters &&
-          candidatesWithCalculations?.map((candidateWithCalculation) => (
-            <CandidateTable
-              key={candidateWithCalculation.id}
-              candidate={candidateWithCalculation}
-              voters={voters}
-            />
-          ))}
-      </Flex>
+      {candidatesWithCalculations.length === 0 ? (
+        <Text fontSize={"lg"} m={"auto"}>
+          "Non sento l'Africa... Quando io guardo il fiume Ngube io vedo
+          Pomezia, lo capisci che c'è un problema o no?"
+        </Text>
+      ) : (
+        <Flex direction={"column"} gap={4}>
+          {voters &&
+            candidatesWithCalculations.map((candidateWithCalculation) => (
+              <CandidateTable
+                key={candidateWithCalculation.id}
+                candidate={candidateWithCalculation}
+                voters={voters}
+              />
+            ))}
+        </Flex>
+      )}
     </GlobalWrapper>
   );
 };
