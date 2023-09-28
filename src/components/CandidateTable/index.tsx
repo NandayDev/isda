@@ -126,7 +126,7 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
         <Tr>
           <Td>
             <Text fontSize={"sm"}>
-              Inserito il: {new Date(candidate.createdAt).toLocaleDateString()}{" "}
+              Inserito il {new Date(candidate.createdAt).toLocaleDateString()}{" "}
               alle ore {new Date(candidate.createdAt).toLocaleTimeString()}
             </Text>{" "}
           </Td>
