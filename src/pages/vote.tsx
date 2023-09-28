@@ -347,7 +347,7 @@ const Vote: NextPage = () => {
           ))}
           <Tr>
             <Td>
-              <Text fontWeight={"medium"}>Voto finale (/30)</Text>
+              <Text fontWeight={"medium"}>Voto giudici (/30)</Text>
             </Td>
             {selectedVotersIds.map((voterId) => (
               <Td key={voterId}>

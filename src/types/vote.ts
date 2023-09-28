@@ -1,7 +1,13 @@
+export type VoteData = {
+  [category in VoteCategory]: string;
+};
+
+export type ChatVoteData = { voters: number; positivePercentage: string };
+
 export interface Vote {
   [voterId: string]: {
-    chatVotes?: { voters?: number; positivePercentage?: string };
-    votes?: { [category in VoteCategory]?: string };
+    chatVotes?: Partial<ChatVoteData>;
+    votes?: Partial<VoteData>;
   };
 }
 
@@ -11,7 +17,7 @@ export interface VotePayload {
 }
 
 export enum VoteCategory {
-  casePresentation = "case_presentation",
-  assetAllocation = "asset_allocation",
-  goalsAdherence = "goals_adherence",
+  casePresentation = "casePresentation",
+  assetAllocation = "assetAllocation",
+  goalsAdherence = "goalsAdherence",
 }
