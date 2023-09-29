@@ -199,6 +199,7 @@ const Vote: NextPage = () => {
     ) {
       setSelectedVoters({ [voters[0].id]: {} });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voters]);
 
   const handleClear = (keepVoters?: boolean) => {

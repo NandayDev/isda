@@ -167,7 +167,7 @@ const Home: NextPage = () => {
           };
         })
         .sort(sortFunctions[sortType]) || [],
-    [candidatesSearchResult, sortType, voters]
+    [candidatesSearchResult, sortFunctions, sortType, voters]
   );
 
   return (
