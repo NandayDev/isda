@@ -12,7 +12,7 @@ const Page404: FunctionComponent = () => {
       <Text fontSize={"8xl"} fontWeight={"medium"}>
         404
       </Text>
-      <Text fontSize={"2xl"}>"Dai, dai dai!"</Text>
+      <Text fontSize={"2xl"}>&quot;Dai, dai dai!&quot;</Text>
     </GlobalWrapper>
   );
 };

@@ -202,8 +202,8 @@ const Home: NextPage = () => {
       </Flex>
       {candidatesWithCalculations.length === 0 ? (
         <Text fontSize={"lg"} m={"auto"}>
-          "Non sento l'Africa... Quando io guardo il fiume Ngube io vedo
-          Pomezia, lo capisci che c'è un problema o no?"
+          &quot;Non sento l&apos;Africa... Quando io guardo il fiume Ngube io
+          vedo Pomezia, lo capisci che c&apos;è un problema o no?&quot;
         </Text>
       ) : (
         <Flex direction={"column"} gap={4}>

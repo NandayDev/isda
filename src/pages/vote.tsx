@@ -394,7 +394,7 @@ const Vote: NextPage = () => {
                       </NumberInput>
                     </FormControl>
                     <FormControl>
-                      <FormLabel>Numero "Si" (in %)</FormLabel>
+                      <FormLabel>Numero &quot;Si&quot; (in %)</FormLabel>
                       <NumberInput
                         min={0}
                         max={100}
