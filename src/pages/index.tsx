@@ -206,7 +206,7 @@ const Home: NextPage = () => {
           vedo Pomezia, lo capisci che c&apos;è un problema o no?&quot;
         </Text>
       ) : (
-        <Flex direction={"column"} gap={4}>
+        <Flex direction={"column"} gap={4} overflowY={"auto"}>
           {voters &&
             candidatesWithCalculations.map((candidateWithCalculation) => (
               <CandidateTable
