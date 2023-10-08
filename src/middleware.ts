@@ -35,5 +35,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [...PRIVATE_ROUTES, ...PUBLIC_ROUTES],
+  matcher: [ROUTES.VOTERS, ROUTES.VOTE, ROUTES.SIGNIN],
 };
