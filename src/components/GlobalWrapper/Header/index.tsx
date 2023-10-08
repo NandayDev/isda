@@ -6,15 +6,19 @@ import {
   Container,
   Flex,
   Link,
+  Switch,
   Text,
+  useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import useSupabaseQuery from "network/useSupabaseQuery";
 import { PRIVATE_ROUTES, ROUTES } from "middleware";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 const Header: FunctionComponent = () => {
+  const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
 
   const { data: session, isLoading: isSessionLoading } =
@@ -85,21 +89,31 @@ const Header: FunctionComponent = () => {
                 </>
               )}
             </Flex>
-            {isSessionLoading ? (
-              <Button isLoading>Sign in</Button>
-            ) : isLoggedIn ? (
-              <Button
-                variant={"outline"}
-                onClick={handleLogout}
-                isLoading={isSignOutLoading}
-              >
-                Logout
-              </Button>
-            ) : (
-              <Button as={NextLink} href={ROUTES.SIGNIN}>
-                Sign in
-              </Button>
-            )}
+            <Flex alignItems={"center"} gap={4}>
+              <Flex alignItems={"center"} gap={2}>
+                <SunIcon />
+                <Switch
+                  isChecked={colorMode === "dark"}
+                  onChange={toggleColorMode}
+                />
+                <MoonIcon />
+              </Flex>
+              {isSessionLoading ? (
+                <Button isLoading>Sign in</Button>
+              ) : isLoggedIn ? (
+                <Button
+                  variant={"outline"}
+                  onClick={handleLogout}
+                  isLoading={isSignOutLoading}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <Button as={NextLink} href={ROUTES.SIGNIN}>
+                  Sign in
+                </Button>
+              )}
+            </Flex>
           </Flex>
         </Flex>
       </Container>
