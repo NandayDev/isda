@@ -125,24 +125,28 @@ const Home: NextPage = () => {
             .reduce((acc, average) => acc + parseFloat(average), 0)
             .toFixed(CALCULATIONS_PRECISION);
 
-          const chatsAverage = (
-            candidate.votes.reduce((acc, vote) => {
-              const chatVoteData = vote.chatVoteData as ChatVoteData | null;
+          const chatsAverage =
+            (candidate.votes.some((vote) => vote.chatVoteData) &&
+              (
+                candidate.votes.reduce((acc, vote) => {
+                  const chatVoteData = vote.chatVoteData as ChatVoteData | null;
 
-              return (
-                acc +
-                (((chatVoteData?.voters || 0) *
-                  parseFloat(chatVoteData?.positivePercentage || "0")) /
-                  100) *
-                  30
-              );
-            }, 0) /
-            candidate.votes.reduce(
-              (acc, vote) =>
-                acc + ((vote.chatVoteData as ChatVoteData | null)?.voters || 0),
-              0
-            )
-          ).toFixed(CALCULATIONS_PRECISION);
+                  return (
+                    acc +
+                    (((chatVoteData?.voters || 0) *
+                      parseFloat(chatVoteData?.positivePercentage || "0")) /
+                      100) *
+                      30
+                  );
+                }, 0) /
+                candidate.votes.reduce(
+                  (acc, vote) =>
+                    acc +
+                    ((vote.chatVoteData as ChatVoteData | null)?.voters || 0),
+                  0
+                )
+              ).toFixed(CALCULATIONS_PRECISION)) ||
+            undefined;
 
           const totalAverage =
             chatsAverage && votersAverage
