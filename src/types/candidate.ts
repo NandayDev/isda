@@ -12,7 +12,11 @@ export interface CandidateWithVotesAndCalculations extends CandidateWithVotes {
     averagesByCategory: Record<VoteCategory, string>;
     totalsByVoter: Record<string, string>;
     votersAverage: string;
-    chatsAverage: string;
+    chatsAverage?: string;
     totalAverage: string;
   };
+}
+
+export interface DeleteVotePayload {
+  candidateId: string;
 }
