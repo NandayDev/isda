@@ -44,6 +44,8 @@ import {
 } from "atom/vote";
 import useVoteQuery from "network/useVoteQuery";
 
+const MAX_VOTE = 10;
+
 const Vote: NextPage = () => {
   const toast = useToast();
   const [candidateName, setCandidateName] = useAtom(candidateNameAtom);
@@ -98,11 +100,13 @@ const Vote: NextPage = () => {
     const totalsByVoter = Object.entries(selectedVoters).reduce(
       (acc, [id, voter]) => ({
         ...acc,
-        [id]: voter.votes
-          ? Object.values(voter.votes)
-              .reduce((acc, vote) => acc + parseFloat(vote), 0)
-              .toFixed(CALCULATIONS_PRECISION)
-          : undefined,
+        [id]:
+          (voter.votes &&
+            Object.values(voter.votes).some((vote) => !!vote) &&
+            Object.values(voter.votes)
+              .reduce((acc, vote) => acc + (vote ? parseFloat(vote) : 0), 0)
+              .toFixed(CALCULATIONS_PRECISION)) ||
+          undefined,
       }),
       {} as Record<string, string | undefined>
     );
@@ -173,7 +177,7 @@ const Vote: NextPage = () => {
           return acc;
         },
         {} as Record<string, Voter>
-      ) || {},
+      ),
     [voters]
   );
 
@@ -195,6 +199,7 @@ const Vote: NextPage = () => {
       typeof window !== "undefined" &&
       !localStorage.getItem(SELECTED_VOTERS_KEY) &&
       voters &&
+      voters.length > 0 &&
       Object.values(selectedVoters).length === 0
     ) {
       setSelectedVoters({ [voters[0].id]: {} });
@@ -263,7 +268,7 @@ const Vote: NextPage = () => {
                       setSelectedVoters({ ...selectedVoters, [voterId]: {} })
                     }
                   >
-                    {votersObject[voterId].name}
+                    {votersObject?.[voterId].name}
                   </MenuItem>
                 ))}
               </MenuList>
@@ -324,12 +329,15 @@ const Vote: NextPage = () => {
                           ...selectedVoters[voterId],
                           votes: {
                             ...selectedVoters[voterId].votes,
-                            [category]: value,
+                            [category]:
+                              parseFloat(value || "0") <= MAX_VOTE
+                                ? value
+                                : `${MAX_VOTE}`,
                           },
                         },
                       }))
                     }
-                    value={selectedVoters[voterId].votes?.[category]}
+                    value={selectedVoters[voterId].votes?.[category] || ""}
                   >
                     <NumberInputField textAlign={"center"} />
                     <NumberInputStepper>
