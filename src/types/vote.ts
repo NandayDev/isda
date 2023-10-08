@@ -17,7 +17,7 @@ export interface VotePayload {
 }
 
 export enum VoteCategory {
-  casePresentation = "casePresentation",
-  assetAllocation = "assetAllocation",
-  goalsAdherence = "goalsAdherence",
+  CasePresentation = "casePresentation",
+  AssetAllocation = "assetAllocation",
+  GoalsAdherence = "goalsAdherence",
 }
