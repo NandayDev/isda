@@ -45,7 +45,7 @@ const DataTable = <TData extends RowData>({
 
   return (
     <Table
-      bg={useColorModeValue("white", "gray")}
+      bg={useColorModeValue("white", "black")}
       borderRadius={"xl"}
       {...rest}
     >
