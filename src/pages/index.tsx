@@ -202,7 +202,7 @@ const Home: NextPage = () => {
       </Flex>
       {candidatesWithCalculations.length === 0 ? (
         <Text fontSize={"lg"} m={"auto"}>
-          &quot;Non sento l&apos;Africa... Quando io guardo il fiume Ngube io
+          &quot;Non sento l&apos;Africa... Quando io guardo il fiume Ngube, io
           vedo Pomezia, lo capisci che c&apos;è un problema o no?&quot;
         </Text>
       ) : (
