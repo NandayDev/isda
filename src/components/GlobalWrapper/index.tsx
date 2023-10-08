@@ -7,6 +7,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import Header from "components/GlobalWrapper/Header";
+import Footer from "components/GlobalWrapper/Footer";
 
 interface GlobalWrapperProps extends ContainerProps {
   children: ReactNode;
@@ -27,17 +28,20 @@ const GlobalWrapper: FunctionComponent<GlobalWrapperProps> = ({
       <Flex
         as={"main"}
         bg={useColorModeValue("gray.100", "gray.900")}
-        height={withoutHeader ? "100%" : "calc(100% - 64px)"}
+        direction={"column"}
+        minHeight={withoutHeader ? "100%" : "calc(100% - 64px)"}
       >
         <Container
           display={"flex"}
           flexDirection={"column"}
+          flex={"1"}
           maxW={"8xl"}
-          py={4}
+          pt={4}
           {...rest}
         >
           {children}
         </Container>
+        <Footer />
       </Flex>
     </>
   );
