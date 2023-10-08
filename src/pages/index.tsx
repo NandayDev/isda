@@ -28,7 +28,7 @@ import Head from "next/head";
 import { SITE_TITLE } from "constants/base";
 
 const Home: NextPage = () => {
-  const [sortType, setSortType] = useState<SortType>(SortType.VoteAsc);
+  const [sortType, setSortType] = useState<SortType>(SortType.DateDesc);
 
   const { data: candidates } = useCandidateQuery.getAll();
   const { data: voters } = useVoterQuery.getVoters();
@@ -65,11 +65,15 @@ const Home: NextPage = () => {
     [SortType.DateAsc]: (
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
-    ) => a.name.localeCompare(b.name),
+    ) =>
+      new Date(b.createdAt).getMilliseconds() -
+      new Date(a.createdAt).getMilliseconds(),
     [SortType.DateDesc]: (
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
-    ) => b.name.localeCompare(a.name),
+    ) =>
+      new Date(a.createdAt).getMilliseconds() -
+      new Date(b.createdAt).getMilliseconds(),
   };
 
   const candidatesWithCalculations = useMemo(
