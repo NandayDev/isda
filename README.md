@@ -25,4 +25,4 @@ Progetto creato per votare e tenere traccia dei voti della serie "I Soldi degli 
 5. Attendi che la pull request venga approvata e mergiata.
 
 ## Licenza
-Questo progetto è sotto licenza MIT. Per maggiori informazioni leggi il file [LICENSE](LICENSE).
+Questo progetto è sotto licenza MIT. Per maggiori informazioni leggi il file [LICENSE](LICENSE)
