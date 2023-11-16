@@ -66,14 +66,14 @@ const Home: NextPage = () => {
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
     ) =>
-      new Date(b.createdAt).getMilliseconds() -
-      new Date(a.createdAt).getMilliseconds(),
+      new Date(a.createdAt).getTime() -
+      new Date(b.createdAt).getTime(),
     [SortType.DateDesc]: (
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
     ) =>
-      new Date(a.createdAt).getMilliseconds() -
-      new Date(b.createdAt).getMilliseconds(),
+      new Date(b.createdAt).getTime() -
+      new Date(a.createdAt).getTime(),
   };
 
   const candidatesWithCalculations = useMemo(
