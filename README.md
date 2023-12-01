@@ -11,7 +11,7 @@ Progetto creato per votare e tenere traccia dei voti della serie "I Soldi degli 
 1. Clona il repository.
 2. Lancia `yarn install` per installare le dipendenze.
 3. Crea un progetto su Supabase con database PostgreSQL.
-4. Crea un file `.env.local` con le variabili d'ambiente di esempio presenti nel file `.env.example`.
+4. Crea un file `.env` con le variabili d'ambiente di esempio presenti nel file `.env.example`.
 5. Lancia `yarn prisma migrate dev` per applicare le migrazioni al database.
 6. Crea un bucket pubblico su Supabase per le immagini.
 7. Crea un progetto su supabase e lancia i comandi del file `supabase.sql`.
