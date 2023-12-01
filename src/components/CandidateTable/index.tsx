@@ -25,6 +25,7 @@ import { VOTE_CATEGORY_NAMES } from "constants/vote";
 import { CandidateWithVotesAndCalculations } from "types/candidate";
 import { DeleteIcon } from "@chakra-ui/icons";
 import useCandidateQuery from "network/useCandidateQuery";
+import useSupabaseQuery from "network/useSupabaseQuery";
 
 interface CandidateTableProps {
   candidate: CandidateWithVotesAndCalculations;
@@ -45,6 +46,10 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
     (100 - FIRST_COLUMN_WIDTH_PERCENTAGE - LAST_COLUMN_WIDTH_PERCENTAGE) /
     candidate.votes.length
   }%`;
+
+  const { data: session } = useSupabaseQuery.getSession();
+
+  const isLoggedIn = !!session?.data.session;
 
   const { mutate: deleteCandidate, isLoading: isDeleteCandidateLoading } =
     useCandidateQuery.delete({
@@ -101,12 +106,14 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
                 <Text lineHeight={5}>
                   {candidate.name}: {candidate.calculations.totalAverage}
                 </Text>
-                <DeleteIcon
-                  fontSize={"sm"}
-                  color={"red"}
-                  cursor={"pointer"}
-                  onClick={handleOpenDeleteModal}
-                />
+                {isLoggedIn && (
+                  <DeleteIcon
+                    fontSize={"sm"}
+                    color={"red"}
+                    cursor={"pointer"}
+                    onClick={handleOpenDeleteModal}
+                  />
+                )}
               </Flex>
             </Th>
             {candidate.votes.map(({ voterId }) => {
