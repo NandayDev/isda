@@ -11,7 +11,7 @@ export default async function handler(
     const supabase = createPagesServerClient({ req, res });
     const session = await supabase.auth.getSession();
 
-    if (session) {
+    if (session.data.session) {
       const prisma = new PrismaClient();
       const voters = await prisma.voter.findMany();
 
@@ -32,7 +32,7 @@ export default async function handler(
     const supabase = createPagesServerClient({ req, res });
     const session = await supabase.auth.getSession();
 
-    if (session) {
+    if (session.data.session) {
       const prisma = new PrismaClient();
       const voter = await prisma.voter.create({
         data: {

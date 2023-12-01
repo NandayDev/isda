@@ -10,7 +10,7 @@ export default async function handle(
     const supabase = createPagesServerClient({ req, res });
     const session = await supabase.auth.getSession();
 
-    if (session) {
+    if (session.data.session) {
       const prisma = new PrismaClient();
 
       const candidates = await prisma.candidate.findMany({
