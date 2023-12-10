@@ -17,6 +17,11 @@ export interface CandidateWithVotesAndCalculations extends CandidateWithVotes {
   };
 }
 
+export interface CandidateWithVotesAndCalculationsAndPosition
+  extends CandidateWithVotesAndCalculations {
+  position: number;
+}
+
 export interface DeleteVotePayload {
   candidateId: string;
 }

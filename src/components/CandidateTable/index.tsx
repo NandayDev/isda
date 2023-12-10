@@ -22,13 +22,14 @@ import Image from "next/image";
 import { Voter } from "@prisma/client";
 import { ChatVoteData, VoteCategory, VoteData } from "types/vote";
 import { VOTE_CATEGORY_NAMES } from "constants/vote";
-import { CandidateWithVotesAndCalculations } from "types/candidate";
+import { CandidateWithVotesAndCalculationsAndPosition } from "types/candidate";
 import { DeleteIcon } from "@chakra-ui/icons";
 import useCandidateQuery from "network/useCandidateQuery";
 import useSupabaseQuery from "network/useSupabaseQuery";
+import { POSITION_EMOJI } from "constants/position";
 
 interface CandidateTableProps {
-  candidate: CandidateWithVotesAndCalculations;
+  candidate: CandidateWithVotesAndCalculationsAndPosition;
   voters: Voter[];
 }
 
@@ -104,7 +105,12 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
             <Th fontSize={"lg"} w={`${FIRST_COLUMN_WIDTH_PERCENTAGE}%`}>
               <Flex alignItems={"center"} gap={2}>
                 <Text lineHeight={5}>
-                  {candidate.name}: {candidate.calculations.totalAverage}
+                  {Object.keys(POSITION_EMOJI).includes(
+                    candidate.position.toString()
+                  )
+                    ? POSITION_EMOJI[candidate.position as 1 | 2 | 3]
+                    : `P${candidate.position}`}{" "}
+                  | {candidate.name}: {candidate.calculations.totalAverage}
                 </Text>
                 {isLoggedIn && (
                   <DeleteIcon

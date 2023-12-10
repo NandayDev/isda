@@ -22,24 +22,23 @@ import {
 } from "@chakra-ui/react";
 import { SortType } from "types/sort";
 import { SORT_TEXT } from "constants/sort";
-import { CandidateWithVotesAndCalculations } from "types/candidate";
+import {
+  CandidateWithVotesAndCalculations,
+  CandidateWithVotesAndCalculationsAndPosition,
+} from "types/candidate";
 import useFuse from "hooks/useFuse";
 import Head from "next/head";
 import { SITE_TITLE } from "constants/base";
+import { ViewType } from "types/view";
+import { VIEW_TEXT } from "constants/view";
+import LiteCandidatesTable from "components/LiteCandidatesTable";
 
 const Home: NextPage = () => {
-  const [sortType, setSortType] = useState<SortType>(SortType.DateDesc);
+  const [sortType, setSortType] = useState<SortType>(SortType.VoteDesc);
+  const [viewType, setViewType] = useState<ViewType>(ViewType.Lite);
 
   const { data: candidates } = useCandidateQuery.getAll();
   const { data: voters } = useVoterQuery.getVoters();
-
-  const {
-    result: candidatesSearchResult,
-    search,
-    term,
-  } = useFuse(candidates, {
-    keys: ["name"],
-  });
 
   const sortFunctions = {
     [SortType.VoteAsc]: (
@@ -65,21 +64,19 @@ const Home: NextPage = () => {
     [SortType.DateAsc]: (
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
-    ) =>
-      new Date(a.createdAt).getTime() -
-      new Date(b.createdAt).getTime(),
+    ) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     [SortType.DateDesc]: (
       a: CandidateWithVotesAndCalculations,
       b: CandidateWithVotesAndCalculations
-    ) =>
-      new Date(b.createdAt).getTime() -
-      new Date(a.createdAt).getTime(),
+    ) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   };
 
-  const candidatesWithCalculations = useMemo(
+  const candidatesWithCalculations = useMemo<
+    CandidateWithVotesAndCalculationsAndPosition[]
+  >(
     () =>
-      candidatesSearchResult
-        ?.map((candidate) => {
+      candidates
+        ?.map((candidate, index) => {
           const averagesByCategory = Object.values(VoteCategory).reduce(
             (acc, category) => {
               const voteData = candidate.votes.map((vote) => ({
@@ -174,9 +171,19 @@ const Home: NextPage = () => {
             },
           };
         })
+        .sort(sortFunctions[SortType.VoteDesc])
+        .map((candidate, index) => ({ ...candidate, position: index + 1 }))
         .sort(sortFunctions[sortType]) || [],
-    [candidatesSearchResult, sortFunctions, sortType, voters]
+    [candidates, sortFunctions, sortType, voters]
   );
+
+  const {
+    result: candidatesSearchResult,
+    search,
+    term,
+  } = useFuse(candidatesWithCalculations, {
+    keys: ["name"],
+  });
 
   return (
     <GlobalWrapper>
@@ -184,6 +191,20 @@ const Home: NextPage = () => {
         <title>{SITE_TITLE}</title>
       </Head>
       <Flex ml={"auto"} justifyContent={"flex-end"} gap={2} mb={4}>
+        <FormControl>
+          <FormLabel>Modalitá</FormLabel>
+          <Select
+            bg={useColorModeValue("white", "black")}
+            onChange={(event) => setViewType(event.target.value as ViewType)}
+            value={viewType}
+          >
+            {Object.values(ViewType).map((viewType) => (
+              <option key={viewType} value={viewType}>
+                {VIEW_TEXT[viewType]}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
         <FormControl>
           <FormLabel>Cerca</FormLabel>
           <Input
@@ -194,7 +215,7 @@ const Home: NextPage = () => {
           />
         </FormControl>
         <FormControl>
-          <FormLabel>Ordina per</FormLabel>
+          <FormLabel>Ordinamento</FormLabel>
           <Select
             bg={useColorModeValue("white", "black")}
             onChange={(event) => setSortType(event.target.value as SortType)}
@@ -208,22 +229,29 @@ const Home: NextPage = () => {
           </Select>
         </FormControl>
       </Flex>
-      {candidatesWithCalculations.length === 0 ? (
+      {candidatesSearchResult.length === 0 ? (
         <Text fontSize={"lg"} m={"auto"}>
           &quot;Non sento l&apos;Africa... Quando io guardo il fiume Ngube, io
           vedo Pomezia, lo capisci che c&apos;è un problema o no?&quot;
         </Text>
       ) : (
-        <Flex direction={"column"} gap={4} overflowY={"auto"}>
-          {voters &&
-            candidatesWithCalculations.map((candidateWithCalculation) => (
+        voters &&
+        (viewType === ViewType.Lite ? (
+          <LiteCandidatesTable
+            candidates={candidatesSearchResult}
+            voters={voters}
+          />
+        ) : (
+          <Flex direction={"column"} gap={4} overflowY={"auto"}>
+            {candidatesSearchResult.map((candidateWithCalculation) => (
               <CandidateTable
                 key={candidateWithCalculation.id}
                 candidate={candidateWithCalculation}
                 voters={voters}
               />
             ))}
-        </Flex>
+          </Flex>
+        ))
       )}
     </GlobalWrapper>
   );
@@ -240,6 +268,7 @@ export const getStaticProps: GetStaticProps = async () => {
   );
 
   const prisma = new PrismaClient();
+
   const candidates = await prisma.candidate.findMany({
     include: {
       votes: true,

@@ -1,8 +1,8 @@
 export enum SortType {
-  DateDesc = "dateDesc",
-  DateAsc = "dateAsc",
   VoteDesc = "voteDesc",
   VoteAsc = "voteAsc",
+  DateDesc = "dateDesc",
+  DateAsc = "dateAsc",
   NameDesc = "nameDesc",
   NameAsc = "nameAsc",
 }

@@ -57,6 +57,7 @@ const DataTable = <TData extends RowData>({
               return (
                 <Th
                   key={header.id}
+                  textAlign={"center"}
                   onClick={header.column.getToggleSortingHandler()}
                   isNumeric={meta?.isNumeric}
                 >
@@ -65,15 +66,15 @@ const DataTable = <TData extends RowData>({
                     header.getContext()
                   )}
 
-                  <chakra.span pl="4">
-                    {header.column.getIsSorted() ? (
-                      header.column.getIsSorted() === "desc" ? (
+                  {header.column.getIsSorted() && (
+                    <chakra.span pl="4">
+                      {header.column.getIsSorted() === "desc" ? (
                         <TriangleDownIcon aria-label="sorted descending" />
                       ) : (
                         <TriangleUpIcon aria-label="sorted ascending" />
-                      )
-                    ) : null}
-                  </chakra.span>
+                      )}
+                    </chakra.span>
+                  )}
                 </Th>
               );
             })}
