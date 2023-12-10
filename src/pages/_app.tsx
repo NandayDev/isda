@@ -12,6 +12,7 @@ const theme = extendTheme({
     Button: { defaultProps: { colorScheme: "teal" } },
     Input: { defaultProps: { focusBorderColor: "teal.400" } },
     NumberInput: { defaultProps: { focusBorderColor: "teal.400" } },
+    Select: { defaultProps: { focusBorderColor: "teal.400" } },
     Switch: { defaultProps: { colorScheme: "teal" } },
   },
 });
