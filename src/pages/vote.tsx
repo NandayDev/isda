@@ -229,10 +229,21 @@ const Vote: NextPage = () => {
   };
 
   const handleSave = () => {
-    vote({
-      candidateName,
-      vote: selectedVoters,
-    });
+    if (candidateName === "") {
+      toast({
+        title: "Errore",
+        description: "Inserisci il nome del candidato",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    } else {
+      vote({
+        candidateName,
+        vote: selectedVoters,
+      });
+    }
   };
 
   return (
