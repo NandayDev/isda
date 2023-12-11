@@ -87,7 +87,15 @@ const DataTable = <TData extends RowData>({
             {row.getVisibleCells().map((cell) => {
               const meta: any = cell.column.columnDef.meta;
               return (
-                <Td key={cell.id} isNumeric={meta?.isNumeric}>
+                <Td
+                  key={cell.id}
+                  isNumeric={meta?.isNumeric}
+                  border={
+                    row.index === table.getRowModel().rows.length - 1
+                      ? "none"
+                      : undefined
+                  }
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Td>
               );
