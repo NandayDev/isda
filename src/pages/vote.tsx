@@ -287,7 +287,7 @@ const Vote: NextPage = () => {
           )}
         </Flex>
       </Flex>
-      <Table bg={useColorModeValue("white", "black")}>
+      <Table bg={useColorModeValue("white", "black")} borderRadius={"xl"}>
         <Thead>
           <Tr>
             <Th>
@@ -468,12 +468,12 @@ const Vote: NextPage = () => {
             </Td>
           </Tr>
           <Tr>
-            <Td colSpan={selectedVotersIds.length + 1}>
+            <Td border={"none"} colSpan={selectedVotersIds.length + 1}>
               <Text align={"right"} fontWeight={"medium"} fontSize={"2xl"}>
                 Media totale
               </Text>
             </Td>
-            <Td>
+            <Td border={"none"}>
               <Text align={"center"} fontWeight={"medium"} fontSize={"2xl"}>
                 {calculations.totalAverage}
               </Text>
