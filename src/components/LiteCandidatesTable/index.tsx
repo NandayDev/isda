@@ -4,7 +4,7 @@ import { CandidateWithVotesAndCalculationsAndPosition } from "types/candidate";
 import { Voter } from "@prisma/client";
 import { createColumnHelper } from "@tanstack/table-core";
 import { POSITION_EMOJI } from "constants/position";
-import { Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 
 interface LiteCandidatesTableProps {
   candidates: CandidateWithVotesAndCalculationsAndPosition[];
@@ -58,7 +58,11 @@ const LiteCandidatesTable: FunctionComponent<LiteCandidatesTableProps> = ({
     []
   );
 
-  return <Table columns={columns} data={candidates} />;
+  return (
+    <Flex overflowX={"auto"}>
+      <Table columns={columns} data={candidates} />
+    </Flex>
+  );
 };
 
 export default LiteCandidatesTable;
