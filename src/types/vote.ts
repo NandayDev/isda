@@ -8,6 +8,7 @@ export interface Vote {
   [voterId: string]: {
     chatVotes?: Partial<ChatVoteData>;
     votes?: Partial<VoteData>;
+    hasLaude?: boolean;
   };
 }
 

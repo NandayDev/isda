@@ -39,7 +39,14 @@ const LiteCandidatesTable: FunctionComponent<LiteCandidatesTableProps> = ({
       ...voters.map((voter) =>
         columnHelper.accessor(`calculations.totalsByVoter.${voter.id}`, {
           header: voter.name,
-          cell: (props) => <Text align={"center"}>{props.getValue()}</Text>,
+          cell: (props) => (
+            <Text align={"center"}>
+              {props.getValue() === "30.0" ? 30 : props.getValue()}
+              {props.row.original.votes.map(
+                (vote) => vote.voterId === voter.id && vote.hasLaude && "L"
+              )}
+            </Text>
+          ),
         })
       ),
       columnHelper.accessor("calculations.chatsAverage", {

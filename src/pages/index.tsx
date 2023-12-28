@@ -118,8 +118,12 @@ const Home: NextPage = () => {
             {} as Record<string, string>
           );
 
+          const laudeCount = Object.values(candidate.votes).filter(
+            (vote) => !!vote.hasLaude
+          ).length;
+
           const votersAverage = Object.values(averagesByCategory)
-            .reduce((acc, average) => acc + parseFloat(average), 0)
+            .reduce((acc, average) => acc + parseFloat(average), laudeCount)
             .toFixed(CALCULATIONS_PRECISION);
 
           const chatsAverage =
@@ -150,7 +154,7 @@ const Home: NextPage = () => {
               ? (
                   (Object.values(totalsByVoter).reduce(
                     (acc, average) => acc + (average ? parseFloat(average) : 0),
-                    0
+                    laudeCount
                   ) +
                     parseFloat(chatsAverage)) /
                   (Object.values(totalsByVoter).filter(

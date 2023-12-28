@@ -7,6 +7,7 @@ import { dehydrate, QueryClient } from "@tanstack/query-core";
 import { createClient } from "@supabase/supabase-js";
 import {
   Button,
+  Checkbox,
   Flex,
   FormControl,
   FormLabel,
@@ -111,13 +112,17 @@ const Vote: NextPage = () => {
       {} as Record<string, string | undefined>
     );
 
+    const laudeCount = Object.values(selectedVoters).filter(
+      (selectedVoter) => !!selectedVoter.hasLaude
+    ).length;
+
     const votersAverage = Object.values(averagesByCategory).some(
       (average) => average !== undefined
     )
       ? Object.values(averagesByCategory)
           .reduce(
             (acc, average) => acc + (average ? parseFloat(average) : 0),
-            0
+            laudeCount
           )
           .toFixed(CALCULATIONS_PRECISION)
       : undefined;
@@ -150,7 +155,7 @@ const Vote: NextPage = () => {
         ? (
             (Object.values(totalsByVoter).reduce(
               (acc, average) => acc + (average ? parseFloat(average) : 0),
-              0
+              laudeCount
             ) +
               parseFloat(chatsAverage)) /
             (Object.values(totalsByVoter).filter(
@@ -345,6 +350,8 @@ const Vote: NextPage = () => {
                                 ? value
                                 : `${MAX_VOTE}`,
                           },
+                          hasLaude:
+                            parseFloat(value || "0") <= MAX_VOTE && false,
                         },
                       }))
                     }
@@ -369,13 +376,31 @@ const Vote: NextPage = () => {
             <Td>
               <Text fontWeight={"medium"}>Voto giudici (/30)</Text>
             </Td>
-            {selectedVotersIds.map((voterId) => (
-              <Td key={voterId}>
-                <Text align={"center"}>
-                  {calculations.totalsByVoter[voterId]}
-                </Text>
-              </Td>
-            ))}
+            {selectedVotersIds.map((voterId) => {
+              const singleVote = calculations.totalsByVoter[voterId];
+              return (
+                <Td key={voterId}>
+                  <Text align={"center"}>{singleVote}</Text>
+                  {+(singleVote || 0) >= 30 && (
+                    <Text align={"center"}>
+                      lode{" "}
+                      <Checkbox
+                        isChecked={selectedVoters[voterId].hasLaude}
+                        onChange={(e) =>
+                          setSelectedVoters((selectedVoters) => ({
+                            ...selectedVoters,
+                            [voterId]: {
+                              ...selectedVoters[voterId],
+                              hasLaude: e.target.checked,
+                            },
+                          }))
+                        }
+                      />
+                    </Text>
+                  )}
+                </Td>
+              );
+            })}
             <Td>
               <Text align={"center"}>{calculations.votersAverage}</Text>
             </Td>
