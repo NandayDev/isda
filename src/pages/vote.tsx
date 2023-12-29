@@ -207,24 +207,31 @@ const Vote: NextPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voters]);
 
-  const handleClear = (keepVoters?: boolean) => {
-    setSelectedVoters(
-      voters
-        ? keepVoters
-          ? selectedVotersIds.reduce(
-              (acc, id) => ({
-                ...acc,
-                [id]: {
-                  ...(selectedVoters[id].chatVotes ? { chatVotes: {} } : {}),
-                },
-              }),
-              {}
-            )
-          : {
-              [voters[0].id]: {},
-            }
-        : {}
+  const resetSelectedVoters = (keepVoters?: boolean) => {
+    if (!voters) {
+      return {};
+    }
+
+    if (!keepVoters) {
+      return {
+        [voters[0].id]: {},
+      };
+    }
+
+    return selectedVotersIds.reduce(
+      (acc, id) => ({
+        ...acc,
+        [id]: {
+          ...(selectedVoters[id].chatVotes ? { chatVotes: {} } : {}),
+        },
+      }),
+      {}
     );
+  };
+
+  const handleClear = (keepVoters?: boolean) => {
+    const resetSelectedVoters = resetSelectedVoters(keepVoters);
+    setSelectedVoters(resetSelectedVoters);
     setCandidateName("");
   };
 
@@ -404,7 +411,7 @@ const Vote: NextPage = () => {
                             },
                           }))
                         }
-                        value={selectedVoters[voterId].chatVotes?.voters}
+                        value={selectedVoters[voterId].chatVotes?.voters || ""}
                       >
                         <NumberInputField textAlign={"center"} />
                         <NumberInputStepper>
@@ -431,7 +438,8 @@ const Vote: NextPage = () => {
                           }))
                         }
                         value={
-                          selectedVoters[voterId].chatVotes?.positivePercentage
+                          selectedVoters[voterId].chatVotes
+                            ?.positivePercentage || ""
                         }
                       >
                         <NumberInputField textAlign={"center"} />
