@@ -230,8 +230,8 @@ const Vote: NextPage = () => {
   };
 
   const handleClear = (keepVoters?: boolean) => {
-    const resetSelectedVoters = resetSelectedVoters(keepVoters);
-    setSelectedVoters(resetSelectedVoters);
+    const newSelectedVoters = resetSelectedVoters(keepVoters);
+    setSelectedVoters(newSelectedVoters);
     setCandidateName("");
   };
 
