@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useMemo, useState } from "react";
 import {
   Button,
   Flex,
@@ -97,6 +97,11 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
     deleteCandidate({ candidateId: candidate.id });
   };
 
+  const isAverageCumLaude = useMemo(
+    () => +(candidate.calculations.totalAverage || "") > 30,
+    [candidate.calculations.totalAverage]
+  );
+
   return (
     <>
       <Table bg={useColorModeValue("white", "black")}>
@@ -110,7 +115,10 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
                   )
                     ? POSITION_EMOJI[candidate.position as 1 | 2 | 3]
                     : `P${candidate.position}`}{" "}
-                  | {candidate.name}: {candidate.calculations.totalAverage}
+                  | {candidate.name}:{" "}
+                  {isAverageCumLaude
+                    ? "30 e lode"
+                    : candidate.calculations.totalAverage}
                 </Text>
                 {isLoggedIn && (
                   <DeleteIcon
@@ -182,12 +190,14 @@ const CandidateTable: FunctionComponent<CandidateTableProps> = ({
             <Td>
               <Text fontWeight={"medium"}>Voto giudici</Text>
             </Td>
-            {candidate.votes.map(({ voterId }) => {
+            {candidate.votes.map(({ voterId }, index) => {
               const voter = votersObject[voterId];
               return (
                 <Td key={voter.id}>
                   <Text align={"center"}>
-                    {candidate.calculations.totalsByVoter[voter.id]}
+                    {candidate.votes[index].hasLaude
+                      ? "30L"
+                      : candidate.calculations.totalsByVoter[voter.id]}
                   </Text>
                 </Td>
               );
