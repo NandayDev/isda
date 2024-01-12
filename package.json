@@ -6,8 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint --ext .js,.ts,.tsx",
+    "lint": "npm run lint:tsc && npm run lint:eslint",
+    "postinstall": "prisma generate",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -40,6 +43,8 @@
   },
   "devDependencies": {
     "eslint-config-prettier": "^9.0.0",
+    "husky": "8.0.3",
+    "lint-staged": "15.2.0",
     "prettier": "^3.0.3",
     "prettier-plugin-prisma": "^5.0.0"
   }
