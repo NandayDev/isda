@@ -6,6 +6,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 const Footer: FunctionComponent = () => {
   return (
@@ -23,16 +24,16 @@ const Footer: FunctionComponent = () => {
           </Link>
         </Text>
         <Text>
-          © {new Date().getFullYear()}{" "}
+          Want to contribute?{" "}
           <Link
-            href={"https://retireinprogress.com"}
+            href={"https://github.com/NandayDev/isda"}
             textDecoration={"underline"}
             target={"_blank"}
             rel={"noopener"}
           >
-            RetireInProgress
-          </Link>
-          . All rights reserved.
+            GitHub
+          </Link>{" "}
+          <GitHubIcon sx={{ verticalAlign: "bottom" }} />
         </Text>
       </Container>
     </Flex>
