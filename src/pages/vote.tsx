@@ -44,6 +44,7 @@ import {
 } from "atom/vote";
 import useVoteQuery from "network/useVoteQuery";
 
+const MIN_VOTE = 0;
 const MAX_VOTE = 10;
 
 const Vote: NextPage = () => {
@@ -253,6 +254,16 @@ const Vote: NextPage = () => {
     }
   };
 
+  const getVoteNewValue = (value: string) => {
+    if (value.startsWith("0") && !value.includes(".")) {
+      return `${MIN_VOTE}`;
+    }
+    if (parseFloat(value || "0") <= MAX_VOTE) {
+      return value;
+    }
+    return value.slice(0, value.length - 1);
+  };
+
   return (
     <GlobalWrapper>
       <Head>
@@ -338,8 +349,8 @@ const Vote: NextPage = () => {
               {selectedVotersIds.map((voterId) => (
                 <Td key={voterId}>
                   <NumberInput
-                    min={0}
-                    max={10}
+                    min={MIN_VOTE}
+                    max={MAX_VOTE}
                     onChange={(value) =>
                       setSelectedVoters((selectedVoters) => ({
                         ...selectedVoters,
@@ -347,10 +358,7 @@ const Vote: NextPage = () => {
                           ...selectedVoters[voterId],
                           votes: {
                             ...selectedVoters[voterId].votes,
-                            [category]:
-                              parseFloat(value || "0") <= MAX_VOTE
-                                ? value
-                                : `${MAX_VOTE}`,
+                            [category]: getVoteNewValue(value),
                           },
                         },
                       }))
