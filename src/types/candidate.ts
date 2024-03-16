@@ -5,6 +5,7 @@ export type CandidateWithVotes = Prisma.CandidateGetPayload<{
   include: { votes: true };
 }> & {
   createdAt: string;
+  hasLaude: boolean;
 };
 
 export interface CandidateWithVotesAndCalculations extends CandidateWithVotes {

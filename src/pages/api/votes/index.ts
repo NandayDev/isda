@@ -26,6 +26,7 @@ export default async function handler(
           candidateId: candidate.id,
           voterId: voterId,
           voteData: votes.votes || {},
+          hasLaude: votes.hasLaude,
           chatVoteData: votes.chatVotes,
         })),
       });

@@ -31,6 +31,7 @@ model Vote {
   voter        Voter     @relation(fields: [voterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   voterId      String
   voteData     Json
+  hasLaude     Boolean?
   chatVoteData Json?
   Candidate    Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   candidateId  String
