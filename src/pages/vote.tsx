@@ -45,6 +45,7 @@ import {
 } from "atom/vote";
 import useVoteQuery from "network/useVoteQuery";
 
+const MIN_VOTE = 0;
 const MAX_VOTE = 10;
 
 const Vote: NextPage = () => {
@@ -212,24 +213,31 @@ const Vote: NextPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voters]);
 
-  const handleClear = (keepVoters?: boolean) => {
-    setSelectedVoters(
-      voters
-        ? keepVoters
-          ? selectedVotersIds.reduce(
-              (acc, id) => ({
-                ...acc,
-                [id]: {
-                  ...(selectedVoters[id].chatVotes ? { chatVotes: {} } : {}),
-                },
-              }),
-              {}
-            )
-          : {
-              [voters[0].id]: {},
-            }
-        : {}
+  const resetSelectedVoters = (keepVoters?: boolean) => {
+    if (!voters) {
+      return {};
+    }
+
+    if (!keepVoters) {
+      return {
+        [voters[0].id]: {},
+      };
+    }
+
+    return selectedVotersIds.reduce(
+      (acc, id) => ({
+        ...acc,
+        [id]: {
+          ...(selectedVoters[id].chatVotes ? { chatVotes: {} } : {}),
+        },
+      }),
+      {}
     );
+  };
+
+  const handleClear = (keepVoters?: boolean) => {
+    const newSelectedVoters = resetSelectedVoters(keepVoters);
+    setSelectedVoters(newSelectedVoters);
     setCandidateName("");
   };
 
@@ -249,6 +257,16 @@ const Vote: NextPage = () => {
         vote: selectedVoters,
       });
     }
+  };
+
+  const getVoteNewValue = (value: string) => {
+    if (value.startsWith("0") && !value.includes(".")) {
+      return `${MIN_VOTE}`;
+    }
+    if (parseFloat(value || "0") <= MAX_VOTE) {
+      return value;
+    }
+    return value.slice(0, value.length - 1);
   };
 
   return (
@@ -336,8 +354,8 @@ const Vote: NextPage = () => {
               {selectedVotersIds.map((voterId) => (
                 <Td key={voterId}>
                   <NumberInput
-                    min={0}
-                    max={10}
+                    min={MIN_VOTE}
+                    max={MAX_VOTE}
                     onChange={(value) =>
                       setSelectedVoters((selectedVoters) => ({
                         ...selectedVoters,
@@ -345,10 +363,7 @@ const Vote: NextPage = () => {
                           ...selectedVoters[voterId],
                           votes: {
                             ...selectedVoters[voterId].votes,
-                            [category]:
-                              parseFloat(value || "0") <= MAX_VOTE
-                                ? value
-                                : `${MAX_VOTE}`,
+                            [category]: getVoteNewValue(value),
                           },
                           hasLaude:
                             parseFloat(value || "0") <= MAX_VOTE && false,
@@ -429,7 +444,7 @@ const Vote: NextPage = () => {
                             },
                           }))
                         }
-                        value={selectedVoters[voterId].chatVotes?.voters}
+                        value={selectedVoters[voterId].chatVotes?.voters || ""}
                       >
                         <NumberInputField textAlign={"center"} />
                         <NumberInputStepper>
@@ -456,7 +471,8 @@ const Vote: NextPage = () => {
                           }))
                         }
                         value={
-                          selectedVoters[voterId].chatVotes?.positivePercentage
+                          selectedVoters[voterId].chatVotes
+                            ?.positivePercentage || ""
                         }
                       >
                         <NumberInputField textAlign={"center"} />

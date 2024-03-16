@@ -6,15 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint --ext .js,.ts,.tsx",
+    "lint": "npm run lint:tsc && npm run lint:eslint",
+    "postinstall": "prisma generate",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/next-js": "^2.1.5",
     "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.6",
+    "@mui/material": "^5.15.6",
     "@prisma/client": "^5.3.1",
     "@supabase/auth-helpers-nextjs": "^0.7.4",
     "@supabase/auth-helpers-react": "^0.4.2",
@@ -40,6 +45,8 @@
   },
   "devDependencies": {
     "eslint-config-prettier": "^9.0.0",
+    "husky": "8.0.3",
+    "lint-staged": "15.2.0",
     "prettier": "^3.0.3",
     "prettier-plugin-prisma": "^5.0.0"
   }
